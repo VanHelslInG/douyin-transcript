@@ -164,3 +164,29 @@ python install.py --device cuda        # 没有 N 卡就 --device cpu
 [ModelScope](https://modelscope.cn) 的开源模型。
 
 本项目代码以 MIT 许可发布，见 `LICENSE`。
+
+---
+
+## English TL;DR
+
+**douyin-transcript** turns Douyin (Chinese TikTok) videos into a local, searchable
+text library — download → strip audio → offline ASR → per-video `.txt` + a single
+markdown corpus + a CSV index.
+
+- 100% local inference (FunASR / Paraformer + VAD + punctuation). No cloud API, no data leaves your machine.
+- ~66× realtime on an RTX 3090 (16-min clip in 15 s); ~7× on CPU.
+- Single-video mode by default — it will not silently pull a creator's whole account.
+- Ships with an agent-facing `SKILL.md`, so an AI assistant can install and run it for you.
+- Requires Python 3.9+, ffmpeg, git. Douyin login cookie obtained via your own browser.
+
+```bash
+git clone https://github.com/VanHelslInG/douyin-transcript ~/.dyasr/repo
+cd ~/.dyasr/repo && python install.py --device cuda   # or --device cpu
+dyasr doctor
+dyasr fetch --video "https://www.douyin.com/video/<id>" --out ./videos
+dyasr list  --src ./videos/Download
+dyasr transcribe --src ./videos/Download --out ./文稿 --select all
+```
+
+Intended for personal study and content-structure analysis. The original creator
+owns the script — republishing rewritten versions is copyright infringement.
