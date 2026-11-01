@@ -1,0 +1,4 @@
+# 统一换行符，避免 Windows 用户提交 CRLF 污染 diff
+* text=auto eol=lf
+*.cmd text eol=crlf
+*.bat text eol=crlf

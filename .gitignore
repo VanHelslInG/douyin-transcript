@@ -1,0 +1,30 @@
+# ── Python ──
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+
+# ── 运行产物（绝对不要提交）──
+# Cookie 是本人登录凭证
+cookie.txt
+cookie*.txt
+# 下载的视频与转写稿，体积大且含他人版权内容
+videos/
+Download/
+文稿/
+*.mp4
+*.mov
+*.m4a
+*.wav
+*.dyasr_meta.json
+
+# ── 本地调试 / 测试残留 ──
+.testhome*/
+.testout/
+.testwork/
+.testmedia/
+*.log
+.pytest_cache/

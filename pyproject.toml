@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "douyin-transcript"
+version = "0.3.0"
+description = "Douyin transcript: 把抖音博主作品批量转成本地离线口播文字稿（下载 MP4 → 抽音轨 → FunASR 转写 → 合集/索引）"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "dyasr contributors" }]
+keywords = ["douyin", "douyin-downloader", "transcript", "asr", "funasr", "speech-to-text", "口播稿", "抖音", "字幕", "offline"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Operating System :: OS Independent",
+  "Topic :: Multimedia :: Sound/Audio :: Speech",
+]
+# 核心只依赖标准库：rebuild / doctor 在没装 torch、没显卡的机器上也能跑
+dependencies = []
+
+[project.optional-dependencies]
+asr = ["funasr>=1.1.0", "modelscope>=1.15.0"]
+dev = ["pytest>=7"]
+
+[project.scripts]
+dyasr = "dyasr.cli:main"
+douyin-transcript = "dyasr.cli:main"
+
+[tool.setuptools]
+packages = ["dyasr"]
