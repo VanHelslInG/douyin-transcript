@@ -63,7 +63,14 @@ python install.py --device cuda      # 或 --device cpu
 | 模型 | 体积 | 什么时候需要 |
 |---|---|---|
 | SenseVoiceSmall | 897 MB | 改用 `--fmodel sensevoice` 时 |
-| seaco-paraformer | 953 MB | 想用**热词**时（`--fmodel seaco`，唯一真正吃 hotword 的模型） |
+| seaco-paraformer | 953 MB | 想用**模型级热词**时（`--fmodel seaco`，唯一真正吃 hotword 的模型） |
+
+> **实测（2026-11，RTX 3090，16 分钟中文单人播客）**：seaco + 热词 与 paraformer 的
+> 转写结果**逐字相同**（4457 字，零差异），速度 17s vs 15s。
+> 热词确实被编进解码器（日志可见 `Hotword list: [...]`），但对这类真实地名/常用词
+> 没有产生任何翻转——模型的语言先验压过了软偏置。
+> 结论：**别为热词去装这 953 MB**。术语纠错靠转写后的 `terms.tsv` + 模糊纠错更划算
+> （实测 41 篇语料改正 4 处、零误伤）。seaco 只在「大量自造词/人名，且愿意逐条核对」时才值得试。
 | cam++ | 28 MB | 说话人分离（本工具未启用） |
 
 如果你以前用过别的转写工具，缓存里可能同时躺着好几个 —— `~/.cache/modelscope/models`
