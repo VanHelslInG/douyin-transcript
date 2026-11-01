@@ -27,18 +27,18 @@ MODEL_ALIAS = {
 REQUIRED_MODELS = {
     "paraformer": [
         ("iic/speech_paraformer-large_asr_nat-zh-cn-16k-common-vocab8404-pytorch",
-         "iic--speech_paraformer-large_asr_nat-zh-cn-16k-common-vocab8404-pytorch", 900),
+         "iic--speech_paraformer-large_asr_nat-zh-cn-16k-common-vocab8404-pytorch", 848),
         ("iic/speech_fsmn_vad_zh-cn-16k-common-pytorch",
          "iic--speech_fsmn_vad_zh-cn-16k-common-pytorch", 4),
         ("iic/punc_ct-transformer_cn-en-common-vocab471067-large",
-         "iic--punc_ct-transformer_cn-en-common-vocab471067-large", 300),
+         "iic--punc_ct-transformer_cn-en-common-vocab471067-large", 1132),
     ],
     "sensevoice": [
-        ("iic/SenseVoiceSmall", "iic--SenseVoiceSmall", 900),
+        ("iic/SenseVoiceSmall", "iic--SenseVoiceSmall", 897),
         ("iic/speech_fsmn_vad_zh-cn-16k-common-pytorch",
          "iic--speech_fsmn_vad_zh-cn-16k-common-pytorch", 4),
         ("iic/punc_ct-transformer_cn-en-common-vocab471067-large",
-         "iic--punc_ct-transformer_cn-en-common-vocab471067-large", 300),
+         "iic--punc_ct-transformer_cn-en-common-vocab471067-large", 1132),
     ],
 }
 

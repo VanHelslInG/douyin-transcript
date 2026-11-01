@@ -8,7 +8,7 @@
 | ffmpeg + ffprobe | 任意新版本，需在 PATH | 抽 16k 单声道音轨、读时长 |
 | git | 任意版本 | 首次采集时拉取下载器源码 |
 | NVIDIA 驱动 | 仅 GPU 版需要，能跑 `nvidia-smi` | CUDA 加速 |
-| 磁盘 | ≥ 10 GB 空闲 | 模型约 1.2 GB + 视频体积 |
+| 磁盘 | ≥ 10 GB 空闲 | 模型约 2 GB + 视频体积 |
 | uv | 可选 | 有则采集层自动用它建隔离环境，没有就退化成 venv+pip |
 
 装 ffmpeg：
@@ -45,6 +45,29 @@ python install.py --device cuda      # 或 --device cpu
 ├─ terms.tsv      # 术语纠错表
 └─ cookie.txt     # 抖音 Cookie（需你自己放）
 ```
+
+## 模型清单与体积（实测）
+
+首次转写会下载这三个，合计约 **1.9 GB**：
+
+| 用途 | 模型 | 体积 |
+|---|---|---|
+| 语音识别 | paraformer-large（`paraformer-zh`） | 848 MB |
+| 语音端点检测 | fsmn-vad | 4 MB |
+| 标点恢复 | ct-punc（cn-en common vocab471067 large） | **1132 MB** |
+
+标点模型是体积大头——中文断句质量靠它，不建议省。
+
+可选、不装也能跑：
+
+| 模型 | 体积 | 什么时候需要 |
+|---|---|---|
+| SenseVoiceSmall | 897 MB | 改用 `--fmodel sensevoice` 时 |
+| seaco-paraformer | 953 MB | 热词增强档（本工具未启用） |
+| cam++ | 28 MB | 说话人分离（本工具未启用） |
+
+如果你以前用过别的转写工具，缓存里可能同时躺着好几个 —— `~/.cache/modelscope/models`
+下能看到全部。`dyasr doctor` 只会报告**当前档位缺哪个**，不会去动别人的模型。
 
 ## 切换 CPU ⇄ GPU
 
@@ -102,7 +125,8 @@ rm -rf ~/.dyasr                 # 全部（含稿件！先自己备份 文稿/�
 rm -rf ~/.dyasr/venv            # 只删环境，保留配置与稿件
 ```
 
-模型缓存在 `~/.cache/modelscope`，占约 1.2 GB，如要腾空间可单独删。
+模型缓存在 `~/.cache/modelscope`，默认三件约 1.9 GB（paraformer 848 MB +
+VAD 4 MB + 标点 1.1 GB）。如要腾空间可单独删，但删了下次转写会重新下载。
 
 ## 升级
 
