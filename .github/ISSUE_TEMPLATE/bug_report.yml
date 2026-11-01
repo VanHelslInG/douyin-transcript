@@ -1,0 +1,68 @@
+name: 🐛 报错 / 跑不通
+description: 安装、采集、转写过程中出错，或结果不对
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        先在仓库根目录跑一次 `dyasr doctor`（或 `python -m dyasr doctor --json`）并把输出贴上来，
+        九成问题它能直接指出。**贴之前请删掉里面可能出现的 Cookie / 用户名 / 本地路径。**
+
+  - type: dropdown
+    id: stage
+    attributes:
+      label: 卡在哪个环节
+      options:
+        - 安装（install.py）
+        - 取 Cookie / 登录
+        - 下载（fetch）
+        - 作品清单（list）
+        - 转写（transcribe）
+        - 重建产物（rebuild）
+        - 模型下载 / 显存
+        - 其他
+    validations:
+      required: true
+
+  - type: textarea
+    id: what
+    attributes:
+      label: 现象
+      description: 你执行了什么命令、期望什么、实际发生了什么（把报错原文贴全，别只贴最后一行）
+      placeholder: |
+        命令：dyasr fetch --video "https://www.douyin.com/video/xxx" --out ./videos
+        期望：下载这一条并转成音频
+        实际：报错 XXX，退出码 1
+    validations:
+      required: true
+
+  - type: textarea
+    id: doctor
+    attributes:
+      label: dyasr doctor 输出
+      render: shell
+      placeholder: |
+        把 `dyasr doctor` 的结果粘贴到这里（记得删掉敏感信息）
+    validations:
+      required: true
+
+  - type: input
+    id: env
+    attributes:
+      label: 系统与版本
+      placeholder: "Windows 11 / Python 3.12 / 有 N 卡（RTX 3090，CUDA 可用）"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: 自查
+      options:
+        - label: 我已经跑过 `dyasr doctor`，并按提示处理过阻断项
+          required: true
+        - label: 我已经搜过 issues 和 `references/TROUBLESHOOT.md`
+          required: true
+        - label: 我上传的内容里没有 Cookie、账号信息或他人的完整文案
+          required: true

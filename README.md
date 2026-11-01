@@ -1,6 +1,12 @@
 # douyin-transcript · 抖音口播稿
 
 [![smoke](https://github.com/VanHelslInG/douyin-transcript/actions/workflows/smoke.yml/badge.svg)](https://github.com/VanHelslInG/douyin-transcript/actions/workflows/smoke.yml)
+[![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![python](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/)
+
+<img src="docs/demo.png" alt="dyasr 实际运行：环境自检 → 单条下载(72.6MB→14.8MB) → 作品清单 → GPU 转写(66x 实时) → 自动清理" width="100%">
+
+<sub>↑ 真实运行输出：自检 → 下一条 → 转音轨 → 转写 → 自动删源（RTX 3090，16 分钟音频 15 秒）</sub>
 
 把**抖音博主**的作品批量下载到本地，离线转写成可检索、可分析的口播文字稿。
 下载 → 抽音轨 → 本地 ASR → 逐条 txt + 合集 md + 索引 csv。

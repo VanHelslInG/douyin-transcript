@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📖 先看文档（多数问题这里已有答案）
+    url: https://github.com/VanHelslInG/douyin-transcript/blob/main/references/TROUBLESHOOT.md
+    about: 采集失败、显存不足、Cookie 无效、时长缺失等常见问题排查
+  - name: 🤖 让 Agent 帮你诊断
+    url: https://github.com/VanHelslInG/douyin-transcript/blob/main/SKILL.md
+    about: 把 SKILL.md 交给 Claude Code / WorkBuddy 等 Agent，它可按既定流程自检与排障

@@ -1,0 +1,29 @@
+name: 💡 功能建议
+description: 想加的能力、想支持的平台、体验改进
+title: "[feat] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: 你想解决什么问题
+      description: 先说场景，再说方案。避免只写「支持 XX」
+      placeholder: |
+        我经常要连续拆 5 个博主的号，现在每个号都要单独 fetch 一次、单独指定 --out，
+        想一次跑完并汇总到一份文档。
+    validations:
+      required: true
+
+  - type: textarea
+    id: idea
+    attributes:
+      label: 你设想的做法（可选）
+      placeholder: "比如：dyasr batch --urls urls.txt --out ./全集"
+
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: 边界
+      options:
+        - label: 这个需求不需要把音频/文字上传到任何云服务（保持全本地）
+          required: true

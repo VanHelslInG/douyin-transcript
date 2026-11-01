@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8">
+<style>
+  :root{color-scheme:dark}
+  body{margin:0;padding:0;background:#0d1117;font:13px/1.65 "Cascadia Mono",Consolas,"Sarasa Mono SC","Microsoft YaHei UI",monospace;color:#e6edf3}
+  .win{width:1040px;background:#161b22;border:1px solid #30363d;border-radius:10px;overflow:hidden;margin:0}
+  .bar{height:34px;background:#21262d;border-bottom:1px solid #30363d;display:flex;align-items:center;padding:0 12px;gap:7px}
+  .dot{width:11px;height:11px;border-radius:50%}
+  .r{background:#ff5f57}.y{background:#febc2e}.g{background:#28c840}
+  .title{margin-left:10px;color:#8b949e;font-size:12px}
+  .body{padding:16px 20px 20px}
+  .ln{white-space:pre}
+  .c{color:#8b949e}
+  .ok{color:#3fb950}
+  .warn{color:#d29922}
+  .dim{color:#6e7681}
+  .b{color:#58a6ff}
+  .m{color:#bc8cff}
+  .gap{height:9px}
+  .sep{color:#30363d}
+  table{border-collapse:collapse;font-size:13px}
+  th{color:#8b949e;font-weight:400;text-align:left;padding:0 0 2px 0}
+  td{padding:0}
+  .num{color:#8b949e}
+  .tag{color:#3fb950}
+  .tag2{color:#d29922}
+</style></head><body>
+<div class="win">
+  <div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+    <span class="title">douyin-transcript — bash — 80×24</span></div>
+  <div class="body">
+    <div class="ln"><span class="c">$</span> <span class="b">dyasr doctor</span></div>
+    <div class="gap"></div>
+    <div class="ln">  <span class="ok">✔</span> Python        3.13.14</div>
+    <div class="ln">  <span class="ok">✔</span> 算力           配置=auto｜实际=NVIDIA GeForce RTX 3090 24.0GB｜torch 2.14.1+cu126</div>
+    <div class="ln">  <span class="ok">✔</span> ffmpeg         9.0.2-full_build</div>
+    <div class="ln">  <span class="ok">✔</span> ASR 模型       paraformer 全部 3 个已在本地缓存</div>
+    <div class="ln">  <span class="ok">✔</span> Cookie         60 个键，2026-12-31 到期</div>
+    <div class="gap"></div>
+    <div class="ln"><span class="ok">✔ 环境就绪</span><span class="c">，可以开始：dyasr fetch --video &lt;作品链接&gt;</span></div>
+    <div class="gap"></div>
+    <div class="ln"><span class="c">$</span> <span class="b">dyasr fetch --video "https://www.douyin.com/video/7690226158…" --out ./videos</span></div>
+    <div class="ln"><span class="c">→ 目标作品：https://www.douyin.com/video/7690226158973078827</span></div>
+    <div class="ln"><span class="c">→ 开始下载（Ctrl+C 可中止）…</span></div>
+    <div class="gap"></div>
+    <div class="ln"><span class="ok">✓ 采集完成，共 1 个文件</span><span class="c">：./videos/Download</span></div>
+    <div class="ln"><span class="ok">✓ 已转为音频 1 个：72.6 MB → 14.8 MB（省 57.8 MB）</span></div>
+    <div class="gap"></div>
+    <div class="ln"><span class="c">$</span> <span class="b">dyasr list --src ./videos/Download</span></div>
+    <div class="gap"></div>
+    <div class="ln">  <span class="c">#    发布        时长   状态    标题</span></div>
+    <div class="ln"><span class="sep">  ──────────────────────────────────────────────────────────────</span></div>
+    <div class="ln">  01   2026-09-28  16:01  <span class="tag2">待转写</span>  成年以后，我们还会再长大一次</div>
+    <div class="gap"></div>
+    <div class="ln"><span class="c">$</span> <span class="b">dyasr transcribe --src ./videos/Download --out ./文稿 --select all</span></div>
+    <div class="gap"></div>
+    <div class="ln"><span class="c">设备：cuda（NVIDIA GeForce RTX 3090）｜模型：paraformer</span></div>
+    <div class="ln">[1/1] 2026-09-28 18.01.16-成年以后，我们还会再长大一次.m4a (961s) … <span class="ok">15s  4441字  (66x 实时)</span></div>
+    <div class="gap"></div>
+    <div class="ln"><span class="ok">✓ 完成：1/1 条</span></div>
+    <div class="ln"><span class="c">  合集：./文稿/口播稿件合集.md</span></div>
+    <div class="ln"><span class="c">  索引：./文稿/索引.csv</span></div>
+    <div class="ln"><span class="c">  进度页：./文稿/进度.html</span></div>
+    <div class="gap"></div>
+    <div class="ln"><span class="ok">✓ 已删除 1 个已转写的源视频，释放 14.8 MB</span></div>
+    <div class="ln"><span class="c">  （想保留源视频：加 --keep-videos）</span></div>
+  </div>
+</div>
+</body></html>
