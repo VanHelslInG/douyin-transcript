@@ -171,8 +171,10 @@ def cmd_terms(args):
 def build_parser():
     ap = argparse.ArgumentParser(
         prog="dyasr",
-        description="把抖音博主主页的全部作品转成可检索的本地口播文字稿（离线 ASR）。",
-        epilog="典型流程：dyasr doctor → dyasr fetch → dyasr transcribe → dyasr rebuild",
+        description="douyin-transcript：把抖音单条作品或整个账号转成本地离线口播文字稿"
+                    "（下载 → 抽音轨 → FunASR 转写 → 合集 + 索引）。",
+        epilog="典型流程：dyasr doctor → dyasr cookie import → dyasr fetch → dyasr list → "
+               "dyasr transcribe → dyasr rebuild",
     )
     ap.add_argument("-V", "--version", action="version", version=f"dyasr {__version__}")
     sub = ap.add_subparsers(dest="cmd", required=True)
