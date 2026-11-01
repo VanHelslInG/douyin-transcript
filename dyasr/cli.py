@@ -250,7 +250,30 @@ def build_parser():
     return ap
 
 
+def _ensure_utf8_output():
+    """让输出不会因为终端编码而崩。
+
+    Windows 默认控制台代码页是 cp936/cp1252，直接 print 中文会抛
+    UnicodeEncodeError（`--help` 都打不出来，重定向到文件时也一样）。
+    这里把控制台切到 UTF-8，并把流配置成「编码失败就替换」，保证永远不崩。
+    """
+    if os.name == "nt":
+        try:
+            import ctypes
+            ctypes.windll.kernel32.SetConsoleOutputCP(65001)
+            ctypes.windll.kernel32.SetConsoleCP(65001)
+        except Exception:
+            pass
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            if hasattr(stream, "reconfigure"):
+                stream.reconfigure(encoding="utf-8", errors="replace")
+        except Exception:
+            pass
+
+
 def main(argv=None):
+    _ensure_utf8_output()
     ap = build_parser()
     args = ap.parse_args(argv)
     if args.cmd == "fetch" and not args.out:
