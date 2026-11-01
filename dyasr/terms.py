@@ -38,6 +38,7 @@ DEFAULT_TERMS = """\
 # ── 婚恋 / 社会观察 ──
 婚债市场	婚恋市场
 沉没陈本	沉没成本
+沉默成本	沉没成本
 情绪价值	情绪价值
 """
 
@@ -85,3 +86,88 @@ def apply_terms(text, mapping: dict):
 def count_hits(text: str, mapping: dict) -> dict:
     """统计每条规则命中次数，rebuild 时打印，便于发现表里写错或错配的规则。"""
     return {w: text.count(w) for w in mapping if text.count(w)}
+
+
+# ──────────────────────── 模糊热词表 ────────────────────────
+
+DEFAULT_HOTWORDS = """\
+# dyasr 模糊热词表（一行一个「正确写法」）
+# 与 terms.tsv 的区别：
+#   terms.tsv   = 精确替换，你知道 ASR 错成什么样（如 结构性发债→明股实债）
+#   hotwords.txt = 只给正确写法，靠拼音相似度去抓各种变形（名股实债/冥股实债…）
+# 生效时机：rebuild 生成产物时，先跑 terms.tsv 精确替换，再跑本表模糊匹配。
+# 阈值在 config.json 的 fuzzy_threshold（默认 0.95，调低抓得多但误伤也多）。
+
+# ── 经济 / 金融 ──
+明股实债
+流动性陷阱
+资产负债表衰退
+土地财政
+城投债
+影子银行
+财政转移支付
+存量博弈
+边际效用
+帕累托改进
+反身性
+
+# ── 博弈论 / 经济学 ──
+纳什均衡
+伯克森悖论
+幸存者偏差
+沉没成本
+盖尔-沙普利
+希克斯-汉森
+公共选择理论
+
+# ── 婚恋 / 社会观察 ──
+情绪价值
+彩礼
+嫁妆
+生育率
+大女主
+原生家庭
+
+# ── 常见人名 / 专有名词（按你关注的博主补充） ──
+"""
+
+
+def seed_hotwords(force: bool = False) -> Path:
+    paths.ensure_home()
+    p = paths.HOTWORDS_FILE
+    if force or not p.exists():
+        p.write_text(DEFAULT_HOTWORDS, encoding="utf-8")
+    return p
+
+
+def load_hotwords(path: Path = None) -> list:
+    """返回模糊匹配用的目标词列表（去重、去注释、去空行）。"""
+    p = Path(path) if path else paths.HOTWORDS_FILE
+    if not p.exists():
+        seed_hotwords()
+    out, seen = [], set()
+    for line in p.read_text(encoding="utf-8").splitlines():
+        s = _COMMENT.sub("", line).strip()
+        if not s or s.startswith("#"):
+            continue
+        if s not in seen:
+            seen.add(s)
+            out.append(s)
+    return out
+
+
+def fuzzy_targets(terms_map=None, hotwords=None):
+    """模糊匹配的目标词 = 热词表 ∪ terms.tsv 的正确写法。
+
+    为什么合并：你在 terms.tsv 里写过「某错法 → 明股实债」，说明「明股实债」
+    是本领域重要术语，那就该顺带用模糊匹配保护它的其他错法变体。
+    """
+    targets = list(hotwords if hotwords is not None else load_hotwords())
+    extra = list((terms_map or {}).values())
+    seen, merged = set(), []
+    for t in targets + extra:
+        t = (t or "").strip()
+        if t and t not in seen:
+            seen.add(t)
+            merged.append(t)
+    return merged

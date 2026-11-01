@@ -127,18 +127,19 @@ def cmd_transcribe(args):
         hotword=args.hotword if args.hotword is not None else "",
         no_resume=args.no_resume, doc_name=args.doc_name,
         batch_size_s=args.batch_size_s, select=args.select,
-        keep_videos=args.keep_videos)
+        keep_videos=args.keep_videos, fuzzy=not args.no_fuzzy)
 
 
 def cmd_rebuild(args):
     return rebuild_mod.rebuild(args.out, order=args.order, doc_name=args.doc_name,
-                               show_hits=not args.quiet)
+                               show_hits=not args.quiet, fuzzy=not args.no_fuzzy)
 
 
 def cmd_config(args):
     cfg = paths.load_config()
     changed = {}
-    for key in ("device", "fmodel", "hotword", "batch_size_s", "min_chars"):
+    for key in ("device", "fmodel", "hotword", "batch_size_s", "min_chars",
+                "fuzzy_threshold"):
         val = getattr(args, key, None)
         if val is not None:
             changed[key] = val
@@ -152,6 +153,13 @@ def cmd_config(args):
 
 
 def cmd_terms(args):
+    if args.hotwords:
+        hp = terms_mod.seed_hotwords()
+        print(f"模糊热词表：{hp}\n" + "─" * 50)
+        print(hp.read_text(encoding="utf-8"))
+        print("─" * 50)
+        print("只写「正确写法」，靠拼音相似度抓各种错法变体；改完 rebuild 生效。")
+        return 0
     p = terms_mod.seed_if_missing()
     if args.show or not args.edit:
         print(f"术语表：{p}\n" + "─" * 50)
@@ -220,7 +228,10 @@ def build_parser():
     t.add_argument("--select", default="all",
                    help="要转写哪些：all / 1,3,5-8 / 标题关键字（默认 all）")
     t.add_argument("--device", default="", help="auto / cuda / cpu，留空用配置")
-    t.add_argument("--fmodel", default="", help="paraformer（默认）/ sensevoice")
+    t.add_argument("--fmodel", default="",
+                   help="paraformer（默认）/ seaco（支持热词）/ sensevoice")
+    t.add_argument("--no-fuzzy", action="store_true",
+                   help="不做模糊纠错（默认会用 hotwords.txt 纠同音错字）")
     t.add_argument("--hotword", default=None, help="热词，空格分隔")
     t.add_argument("--no-resume", action="store_true", help="忽略已有稿件，全部重跑")
     t.add_argument("--keep-videos", action="store_true",
@@ -234,18 +245,22 @@ def build_parser():
     r.add_argument("--order", default="asc", choices=["asc", "desc"], help="时间正序/倒序")
     r.add_argument("--doc-name", default="口播稿件合集.md")
     r.add_argument("--quiet", action="store_true", help="不打印术语命中统计")
+    r.add_argument("--no-fuzzy", action="store_true",
+                   help="跳过模糊纠错（只用 terms.tsv 的精确替换）")
     r.set_defaults(func=cmd_rebuild)
 
     c = sub.add_parser("config", help="查看/修改配置")
     c.add_argument("--device", choices=["auto", "cuda", "cpu"])
-    c.add_argument("--fmodel", choices=["paraformer", "sensevoice"])
+    c.add_argument("--fmodel", choices=["paraformer", "seaco", "sensevoice"])
     c.add_argument("--hotword")
     c.add_argument("--batch-size-s", type=int)
     c.add_argument("--min-chars", type=int)
+    c.add_argument("--fuzzy-threshold", type=float)
     c.set_defaults(func=cmd_config)
 
     m = sub.add_parser("terms", help="查看/编辑术语纠错表")
-    m.add_argument("--show", action="store_true", help="只打印，不打开编辑器")
+    m.add_argument("--show", action="store_true", help="只打印术语表（精确替换）")
+    m.add_argument("--hotwords", action="store_true", help="查看模糊热词表（拼音匹配）")
     m.add_argument("--edit", action="store_true", help="用系统默认编辑器打开")
     m.set_defaults(func=cmd_terms)
 

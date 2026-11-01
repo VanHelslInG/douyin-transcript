@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "douyin-transcript"
-version = "0.3.0"
+version = "0.4.0"
 description = "Douyin transcript: 把抖音博主作品批量转成本地离线口播文字稿（下载 MP4 → 抽音轨 → FunASR 转写 → 合集/索引）"
 readme = "README.md"
 requires-python = ">=3.9"
@@ -20,7 +20,7 @@ classifiers = [
 dependencies = []
 
 [project.optional-dependencies]
-asr = ["funasr>=1.1.0", "modelscope>=1.15.0"]
+asr = ["funasr>=1.1.0", "modelscope>=1.15.0", "pypinyin>=0.50", "rapidfuzz>=3.0"]
 dev = ["pytest>=7"]
 
 [project.scripts]

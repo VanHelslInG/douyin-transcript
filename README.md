@@ -23,6 +23,8 @@
 - **默认只下你要的那一条**，不会偷偷把整个账号几十 GB 拉下来。
 - **断点续跑**：中断后重跑不重复劳动。
 - **转完自动删源**：只留文字，磁盘占用降到 1/10。
+- **两层纠错**：`terms.tsv` 精确替换已知错法，`hotwords.txt` 用拼音相似度抓同音错字
+  （`名股实债`、`婚链市场`、`边际效勇` 这类不用穷举也能改对）。
 
 > 命令有两个等价名字：`douyin-transcript`（全名）和 `dyasr`（短名，DouYin ASR）。
 > 下面统一用 `dyasr`。
@@ -124,11 +126,11 @@ python install.py --device cuda        # 没有 N 卡就 --device cpu
 | `dyasr fetch --video <作品链接>` | 下载单条作品（默认；自动转音轨删视频） |
 | `dyasr fetch --url <主页>` | 下载整个账号（几十条＝几个 GB，先问用户） |
 | `dyasr list --src <目录> [--json]` | 列作品清单，按编号挑 |
-| `dyasr transcribe --src <目录> --out <目录> [--select …]` | 按选择转写，默认删源视频 |
+| `dyasr transcribe --src <目录> --out <目录> [--select …] [--fmodel seaco]` | 按选择转写，默认删源视频 |
 | `dyasr clean --src <目录> [--dry-run]` | 手动清理视频释放空间 |
 | `dyasr rebuild --out <目录> [--order desc]` | 只重建产物，不跑模型 |
 | `dyasr config [--device cpu\|cuda\|auto]` | 查看/修改配置 |
-| `dyasr terms [--show\|--edit]` | 维护术语纠错表 |
+| `dyasr terms [--show\|--hotwords\|--edit]` | 术语表（精确）与模糊热词表 |
 
 退出码：`0` 成功 / `1` 有失败项或环境阻断 / `2` 缺输入。
 

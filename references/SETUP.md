@@ -63,7 +63,7 @@ python install.py --device cuda      # 或 --device cpu
 | 模型 | 体积 | 什么时候需要 |
 |---|---|---|
 | SenseVoiceSmall | 897 MB | 改用 `--fmodel sensevoice` 时 |
-| seaco-paraformer | 953 MB | 热词增强档（本工具未启用） |
+| seaco-paraformer | 953 MB | 想用**热词**时（`--fmodel seaco`，唯一真正吃 hotword 的模型） |
 | cam++ | 28 MB | 说话人分离（本工具未启用） |
 
 如果你以前用过别的转写工具，缓存里可能同时躺着好几个 —— `~/.cache/modelscope/models`

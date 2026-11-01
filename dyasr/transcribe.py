@@ -21,13 +21,26 @@ from . import core, paths, terms as terms_mod
 MODEL_ALIAS = {
     "paraformer": "paraformer-zh",
     "sensevoice": "iic/SenseVoiceSmall",
+    # 只有 contextual_paraformer（seaco）真的会读 hotword 参数；
+    # 其余模型的 model.py 里根本没这个词，传了会被静默忽略。
+    "seaco": "iic/speech_seaco_paraformer_large_asr_nat-zh-cn-16k-common-vocab8404-pytorch",
 }
+
+HOTWORD_CAPABLE = {"seaco"}
 
 # funasr 用到的模型 ID，用于预检缓存是否齐全（对应 modelscope 缓存目录名）
 REQUIRED_MODELS = {
     "paraformer": [
         ("iic/speech_paraformer-large_asr_nat-zh-cn-16k-common-vocab8404-pytorch",
          "iic--speech_paraformer-large_asr_nat-zh-cn-16k-common-vocab8404-pytorch", 848),
+        ("iic/speech_fsmn_vad_zh-cn-16k-common-pytorch",
+         "iic--speech_fsmn_vad_zh-cn-16k-common-pytorch", 4),
+        ("iic/punc_ct-transformer_cn-en-common-vocab471067-large",
+         "iic--punc_ct-transformer_cn-en-common-vocab471067-large", 1132),
+    ],
+    "seaco": [
+        ("iic/speech_seaco_paraformer_large_asr_nat-zh-cn-16k-common-vocab8404-pytorch",
+         "iic--speech_seaco_paraformer_large_asr_nat-zh-cn-16k-common-vocab8404-pytorch", 953),
         ("iic/speech_fsmn_vad_zh-cn-16k-common-pytorch",
          "iic--speech_fsmn_vad_zh-cn-16k-common-pytorch", 4),
         ("iic/punc_ct-transformer_cn-en-common-vocab471067-large",
@@ -103,7 +116,7 @@ def _extract_wav(video, work_dir):
 
 def transcribe(src, out_dir, device="", fmodel="", hotword="", no_resume=False,
                doc_name="口播稿件合集.md", batch_size_s=None, select="",
-               keep_videos=False):
+               keep_videos=False, fuzzy=True):
     cfg = paths.load_config()
     fmodel = fmodel or cfg.get("fmodel", "paraformer")
     hotword = hotword if hotword != "" else cfg.get("hotword", "")
@@ -168,6 +181,11 @@ def transcribe(src, out_dir, device="", fmodel="", hotword="", no_resume=False,
         logging.getLogger("funasr").setLevel(logging.WARNING)
         logging.getLogger("modelscope").setLevel(logging.WARNING)
 
+        if hotword and fmodel not in HOTWORD_CAPABLE:
+            print(f"⚠ 模型 {fmodel} 不支持热词（funasr 只有 seaco 的 contextual_paraformer 会读该参数），"
+                  "--hotword 已忽略。\n"
+                  "  想用热词：--fmodel seaco（模型多 953 MB，语速略慢）")
+
         dev = resolve_device(device or cfg.get("device", "auto"))
         label = f"（{torch.cuda.get_device_name(0)}）" if dev == "cuda" else ""
         print(f"\n设备：{dev}{label}｜模型：{fmodel}")
@@ -194,7 +212,7 @@ def transcribe(src, out_dir, device="", fmodel="", hotword="", no_resume=False,
                 try:
                     wav = _extract_wav(it["path"], work)
                     kw = {"input": wav, "batch_size_s": need}
-                    if hotword:
+                    if hotword and fmodel in HOTWORD_CAPABLE:
                         kw["hotword"] = hotword
                     res = model.generate(**kw)
                     text = core.clean_text(res[0]["text"]) if res else ""
@@ -218,10 +236,18 @@ def transcribe(src, out_dir, device="", fmodel="", hotword="", no_resume=False,
             shutil.rmtree(work, ignore_errors=True)
 
     terms_map = terms_mod.load_terms()
+    fuzzy_engine = None
+    if fuzzy:
+        from . import fuzzy as fuzzy_mod
+        if fuzzy_mod.available():
+            thr = float(cfg.get("fuzzy_threshold", 0.85))
+            fuzzy_engine = fuzzy_mod.FuzzyCorrector(
+                terms_mod.fuzzy_targets(terms_map), threshold=thr)
     core.save_meta(out_dir, items)      # 时长旁挂，供 rebuild 在源视频删除后仍能显示
+    stats = {}
     doc, csv_path = core.build_outputs(
         out_dir, items, engine=f"funasr/{fmodel}", doc_name=doc_name,
-        terms_map=terms_map, raw_dir=raw_dir)
+        terms_map=terms_map, raw_dir=raw_dir, fuzzy=fuzzy_engine, stats=stats)
 
     ok = sum(1 for i in items if i["status"] == "done")
     fail = [i for i in items if i["status"] == "fail"]

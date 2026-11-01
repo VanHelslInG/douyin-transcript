@@ -137,6 +137,18 @@ ffprobe -v error -show_streams "video.mp4" | grep -E "codec_type|channels|sample
 `ffprobe` 得到，视频删了就只能显示 0 —— 这也是为什么 `transcribe` 会把时长旁挂到
 `.dyasr_meta.json`，**不要删这个文件**。
 
+### 模糊纠错误伤（把对的词改错了）
+
+默认阈值 0.95 已经比较保守，还误伤就再往上调：
+
+```bash
+dyasr config --fuzzy-threshold 0.98
+dyasr rebuild --out ./文稿
+```
+
+或者直接 `--no-fuzzy` 关掉，只用 `terms.tsv` 的精确替换。
+不知道改了哪些：`rebuild` 会逐条打印「原文 → 改成什么 [相似度]」，命中可疑就往回调。
+
 ### 术语替换不生效
 
 1. `dyasr terms --show` 确认规则写对：必须是 `错词<TAB>正字`，用 Tab 不是空格。

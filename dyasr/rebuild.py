@@ -10,7 +10,7 @@ from . import core, paths, terms as terms_mod
 
 
 def rebuild(out_dir, order="asc", device_note="", doc_name="口播稿件合集.md",
-            show_hits=True):
+            show_hits=True, fuzzy=True):
     raw_dir = os.path.join(out_dir, "raw")
     if not os.path.isdir(raw_dir):
         raise SystemExit(f"✗ 找不到稿件目录：{raw_dir}")
@@ -42,6 +42,18 @@ def rebuild(out_dir, order="asc", device_note="", doc_name="口播稿件合集.m
         it["idx"] = n
 
     terms_map = terms_mod.load_terms()
+    fuzzy_engine = None
+    if fuzzy:
+        targets = terms_mod.fuzzy_targets(terms_map)
+        if targets:
+            from . import fuzzy as fuzzy_mod
+            if fuzzy_mod.available():
+                thr = float(paths.load_config().get("fuzzy_threshold", 0.85))
+                fuzzy_engine = fuzzy_mod.FuzzyCorrector(targets, threshold=thr)
+            else:
+                print("⚠ 未安装 pypinyin / rapidfuzz，跳过模糊纠错"
+                      "（pip install pypinyin rapidfuzz）")
+
     if show_hits and terms_map:
         hits = {}
         for it in items:
@@ -53,10 +65,20 @@ def rebuild(out_dir, order="asc", device_note="", doc_name="口播稿件合集.m
             for w, c in sorted(hits.items(), key=lambda kv: -kv[1]):
                 print(f"  {w} → {terms_map[w]}　×{c}")
 
+    stats = {}
     doc, csv_path = core.build_outputs(
         out_dir, items, engine=device_note or "既有稿件（未重新转写）",
-        doc_name=doc_name, terms_map=terms_map, raw_dir=raw_dir)
+        doc_name=doc_name, terms_map=terms_map, raw_dir=raw_dir,
+        fuzzy=fuzzy_engine, stats=stats)
     core.save_meta(out_dir, items)      # 把补回来的时长固化，免得下次又要从旧索引里捞
+
+    fhits = stats.get("fuzzy") or []
+    if show_hits and fhits:
+        print(f"模糊纠错命中 {len(fhits)} 处：")
+        for stem, seg, target, score in fhits[:12]:
+            print(f"  {seg} → {target}　[{score}]　{stem[:28]}")
+        if len(fhits) > 12:
+            print(f"  …另有 {len(fhits) - 12} 处")
 
     total = sum(i["chars"] for i in items)
     print(f"✓ 重建完成：{len(items)} 条 / {total:,} 字")

@@ -16,6 +16,7 @@ VENDOR_DIR = HOME / "vendor"
 LOG_DIR = HOME / "logs"
 CACHE_DIR = HOME / "cache"
 SEED_TERMS = HOME / "terms.tsv"
+HOTWORDS_FILE = HOME / "hotwords.txt"
 
 DEFAULTS = {
     # auto = 有可用 CUDA 就走 GPU，否则 CPU；也可硬指定 cuda / cpu
@@ -31,6 +32,8 @@ DEFAULTS = {
     "min_chars": 100,
     # 单批送模型的音频长度上限（秒），显存紧张时调小
     "batch_size_s": 300,
+    # 模糊纠错阈值：越高越保守（0.95 基本只抓同音/一字之差），调低抓得多但误伤也多
+    "fuzzy_threshold": 0.95,
 }
 
 

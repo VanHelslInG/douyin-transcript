@@ -24,12 +24,29 @@
 | `fmodel` | `paraformer` | `paraformer`（准）/ `sensevoice`（更快，中文标点仍走 ct-punc） |
 | `hotword` | 空 | 热词，空格分隔。命令行 `--hotword` 优先 |
 | `batch_size_s` | 300 | 单批音频秒数，显存紧张时调小（60–120） |
+| `fuzzy_threshold` | 0.95 | 模糊纠错阈值，越高越保守；调到 0.85 抓得多但会误伤 |
 | `min_chars` | 100 | 少于此字数视为无效稿，用于过滤中断半成品 |
 | `douk_repo` | 见文件 | 采集器仓库地址 |
 | `douk_commit` | 见文件 | 锁定版本；清空则跟随默认分支 |
 
 改配置：`dyasr config --device cpu --fmodel sensevoice`
 （直接编辑 json 也行，但改完要保证是合法 JSON。）
+
+## 两层纠错
+
+| 层 | 文件 | 机制 | 适合 |
+|---|---|---|---|
+| 精确 | `~/.dyasr/terms.tsv` | `错词<TAB>正字` 直接替换 | 你确切知道 ASR 错成什么样 |
+| 模糊 | `~/.dyasr/hotwords.txt` | 拼音相似度（pypinyin + rapidfuzz） | 只知道正确写法，抓各种变形 |
+
+两层都只作用于产物，`raw/*.txt` 永远是 ASR 原文。执行顺序：先精确、后模糊。
+
+模糊层有三条防误伤约束（都是实测被误伤逼出来的）：
+窗口内必须全是汉字/字母数字（否则「情绪、价值」会被吞成「情绪价值」）、
+窗口与目标长度差 ≤1（否则「生育」会变「生育率」）、互为子串时跳过。
+
+多音字是它的盲区：`沉没成本` 的「没」读 mò，但 pypinyin 默认读 méi，
+所以「沉默成本」抓不到——这类必须写进 `terms.tsv`。
 
 ## 术语表 `~/.dyasr/terms.tsv`
 

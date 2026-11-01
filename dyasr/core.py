@@ -340,11 +340,11 @@ def write_progress(out_dir, items, started_at, processed_audio, processed_wall, 
 # ──────────────────────────── 汇总产物 ────────────────────────────
 
 def build_outputs(out_dir, items, engine="funasr/paraformer", doc_name="口播稿件合集.md",
-                  terms_map=None, raw_dir=None):
+                  terms_map=None, raw_dir=None, fuzzy=None, stats=None):
     """从 items 生成「合集.md」+「索引.csv」。
 
     items 里 status=done 的条目会去 raw_dir/<stem>.txt 读正文；缺失则跳过。
-    terms_map 只作用于输出，不写回 raw。
+    terms_map / fuzzy 只作用于输出，不写回 raw —— 保留 ASR 原文便于回溯。
     """
     raw_dir = raw_dir or os.path.join(out_dir, "raw")
     terms_map = terms_map or {}
@@ -373,6 +373,10 @@ def build_outputs(out_dir, items, engine="funasr/paraformer", doc_name="口播�
             continue
         info = it.get("info") or parse_stem(it["stem"])
         body = terms_mod.apply_terms(body, terms_map)
+        if fuzzy:
+            body, hits = fuzzy.apply(body)
+            if hits and stats is not None:
+                stats.setdefault("fuzzy", []).extend((it["stem"],) + h for h in hits)
         md += ["---", "",
                f"## {it['idx']:02d}. {info['title'] or it['stem']}", "",
                f"> 发布 {info['date']} {info['time']}　·　时长 {fmt_sec(it['dur'])}　·　{it['chars']} 字",

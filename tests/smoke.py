@@ -222,6 +222,34 @@ def test_clean():
     check("删除其余", not (d / "2026-01-01 10.00.00-A.mp4").exists())
 
 
+def test_fuzzy():
+    print("模糊纠错（拼音级）")
+    from dyasr import fuzzy
+    if not fuzzy.available():
+        print("  ⚠ 未安装 pypinyin/rapidfuzz，跳过")
+        return
+    fc = fuzzy.FuzzyCorrector(
+        ["明股实债", "流动性陷阱", "纳什均衡", "彩礼", "生育率", "通胀"], threshold=0.95)
+    chk = lambda src, want: check(f"{src} → {want}", fc.apply(src)[0] == want,
+                                  fc.apply(src)[0])
+
+    chk("现在是名股实债", "现在是明股实债")
+    chk("进入了流动型陷井", "进入了流动性陷阱")
+    chk("纳什均横是一种", "纳什均衡是一种")
+    chk("材里的问题", "彩礼的问题")
+
+    # 三条防误伤约束，都是实测被误伤逼出来的
+    chk("，情绪价值很重要", "，情绪价值很重要")          # 不能吞标点
+    chk("情绪、价值", "情绪、价值")                      # 窗口里夹标点不改
+    chk("生育对收入有影响", "生育对收入有影响")          # 不能变「生育率」
+    chk("系统中间那段", "系统中间那段")                  # 不能变「通胀」
+    chk("完全无关的一句话", "完全无关的一句话")
+
+    out, hits = fc.apply("名股实债和流动型陷井")
+    check("命中列表长度", len(hits) == 2, hits)
+    check("命中分散不重叠", "明股实债和流动性陷阱" == out, out)
+
+
 def test_human_size():
     print("其他")
     check("字节", core.human_size(900) == "900 B", core.human_size(900))
@@ -232,7 +260,7 @@ def test_human_size():
 def main():
     print(f"临时家目录：{_TMP_HOME}\n")
     for fn in (test_parse_stem, test_sort, test_terms, test_outputs, test_config,
-               test_selection, test_page_order, test_cookie, test_clean,
+               test_selection, test_page_order, test_cookie, test_clean, test_fuzzy,
                test_human_size, test_doctor_json):
         try:
             fn()
